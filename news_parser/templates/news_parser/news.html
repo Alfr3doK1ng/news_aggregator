@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Latest News</title>
+</head>
+<body>
+    <h1>Latest News</h1>
+    <ul>
+        {% for item in news_items %}
+        <li>
+            <a href="{{ item.link }}">{{ item.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
