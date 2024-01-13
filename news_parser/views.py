@@ -28,7 +28,9 @@ def show_news(request):
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/latest.xml'
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/economy.xml'
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/markets.xml'
-    rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/technology.xml'
+    # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/technology.xml'
+    # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/college.xml'
+    rss_feed_url = 'https://rsshub.app/cnbc/rss'
     news_items = parse_rss_feed(rss_feed_url).entries
     latest_news = []
     for entry in news_items:
@@ -43,11 +45,14 @@ def show_news(request):
     
     if latest_news:
 
-        for entry in news_items:
+        for entry in latest_news:
             print(entry.title)
             # print(str(entry.content))
             # print(entry.content[0]['value'])
-            chunks = text_splitter.create_documents([entry.content[0]['value']])
+            # chunks = text_splitter.create_documents([entry.content[0]['value']])
+             # Extract content from 'content' or 'description' attribute
+            news_content = entry.get('content', [{}])[0].get('value') or entry.get('description', '')
+            chunks = text_splitter.create_documents([news_content])
             # print(chunks)
             Pinecone.from_documents(chunks, embeddings, index_name = "news")
         
