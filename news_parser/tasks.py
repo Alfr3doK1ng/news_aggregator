@@ -18,7 +18,7 @@ load_dotenv(find_dotenv(), override=True)
 embeddings = OpenAIEmbeddings()
 
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1200,
+    chunk_size=1000,
     chunk_overlap=20,
     length_function=len
 )
@@ -32,14 +32,17 @@ def my_scheduled_task():
                      'https://www.investmentnews.com/feed',
                      'https://www.vox.com/rss/index.xml',
                      'https://rsshub.app/cnbc/rss',
-                     'https://rsshub.app/nytimes/en',
                      'https://rsshub.app/abc',
                      'https://rsshub.app/caixinglobal/latest',
-                     'https://rsshub.app/mingpao/pns/s00017',
-                     'https://rsshub.app/now/news',
                      'https://rsshub.app/rfi',
                      'https://rsshub.app/rthk-news/en/international',
-                     'https://rsshub.app/scmp/3'
+                     'https://rsshub.app/scmp/3',
+                     'https://rsshub.app/economist/espresso',
+                     'https://rsshub.app/guardian/editorial',
+                     'https://rsshub.app/ainvest/article',
+                     'https://rsshub.app/fx-markets/trading',
+                     'https://rsshub.app/apnews/topics/apf-topnews',
+                     'https://rsshub.app/sputniknews',
                      ]
     
     for rss_feed_url in rss_feed_urls:
@@ -47,6 +50,7 @@ def my_scheduled_task():
         news_items = parse_rss_feed(rss_feed_url).entries
         latest_news = []
         for entry in news_items:
+            # print(rss_feed_url)
             publish_time = datetime(*entry.published_parsed[:6]).isoformat()
             # print(publish_time)
             key = f"news:{publish_time}"
