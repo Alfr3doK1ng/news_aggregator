@@ -14,6 +14,12 @@ import os
 
 pinecone.init(api_key = "7a27aee2-c409-4a5c-9fa5-4870382fbf7f", environment = "gcp-starter")
 from dotenv import load_dotenv, find_dotenv
+
+from django.http import JsonResponse
+from .models import NewsItem
+
+from newspaper import Article
+
 load_dotenv(find_dotenv(), override=True)
 
 embeddings = OpenAIEmbeddings()
@@ -30,12 +36,21 @@ def show_news(request):
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/markets.xml'
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/technology.xml'
     # rss_feed_url = 'https://moxie.foxbusiness.com/google-publisher/college.xml'
-    rss_feed_url = 'https://rsshub.app/cnbc/rss'
+    rss_feed_url = 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114'
     news_items = parse_rss_feed(rss_feed_url).entries
     latest_news = []
     for entry in news_items:
         publish_time = datetime(*entry.published_parsed[:6]).isoformat()
         print(publish_time)
+        print(entry.link)
+        link = entry.link
+        article = Article(link)
+        article.download()
+        article.parse()
+        print(article.top_image)
+        # print(article.text)
+        article.nlp()
+        print(article.summary)
         key = f"news:{publish_time}"
 
         if not cache.get(key):
@@ -57,3 +72,8 @@ def show_news(request):
             Pinecone.from_documents(chunks, embeddings, index_name = "news")
         
     return render(request, 'news_parser/news.html', {'news_items': latest_news})
+
+def latest_news(request):
+    news_items = NewsItem.objects.all().order_by('-published_date')[:10]  # Get the latest 10 news items
+    data = list(news_items.values('title', 'content', 'published_date', 'image_url', 'news_url'))
+    return JsonResponse(data, safe=False)
